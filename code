@@ -1,0 +1,231 @@
+import NumPy as np
+import matplotlib. pyplot as plt
+import pandas as pd
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM
+from sklearn.preprocessing import MinMaxScaler
+In [3]:
+dataset = pd.read_csv('AirPassengers.csv')
+dataset = dataset['#Passengers']
+dataset = np.array(dataset).reshape(-1,1)
+dataset[:10]
+Out[3]:
+array([[112],
+ [118],
+ [132],
+ [129],
+ [121],
+ [135],
+ [148],
+ [148],
+ [136],
+ [119]], dtype=int64)
+In [6]:
+Plt..Plot(dataset)
+Out[6]:
+[<matplotlib.lines.Line2D at 0x242459ca280>]
+ FIG 9 :Plotting Actual Data in Dataset
+In [7]:
+scaler = MinMaxScaler()
+dataset = scaler.fit_transform(dataset)
+dataset.min(),dataset.max()
+Out[7]:
+(0.0, 1.0)
+In [8]:
+train_size = 100
+test_size = 44
+train = dataset[0:train_size, :]
+train.shape
+Out[8]:
+(100, 1)
+In [9]:
+test = dataset[train_size:144, :]
+test.shape
+Out[9]:
+(44, 1)
+In [10]:
+def get_data(dataset, look_back):
+ dataX, dataY = [], []
+ for i in range(len(dataset)-look_back-1):
+ a = dataset[i:(i+look_back), 0]
+ dataX.append(a)
+ dataY.append(dataset[i+look_back, 0])
+ return np.array(dataX), np.array(dataY)
+ Predicting Airline Passengers Using RNN-LSTM
+Dept of CSE, GPREC, KNL. Page 36
+look_back = 1
+X_train, y_train = get_data(train, look_back)
+X_train[:10]
+Out[10]:
+array([[0.01544402],
+ [0.02702703],
+ [0.05405405],
+ [0.04826255],
+ [0.03281853],
+ [0.05984556],
+ [0.08494208],
+ [0.08494208],
+ [0.06177606],
+ [0.02895753]])
+In [11]:
+y_train[:10]
+Out[11]:
+array([0.02702703, 0.05405405, 0.04826255, 0.03281853, 0.05984556,
+ 0.08494208, 0.08494208, 0.06177606, 0.02895753, 0. ])
+In [12]:
+ Predicting Airline Passengers Using RNN-LSTM
+Dept of CSE, GPREC, KNL. Page 37
+X_test, y_test = get_data(test, look_back)
+In [13]:
+X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
+X_test = X_test.reshape(X_test.shape[0], X_test.shape[1], 1)
+In [14]:
+X_train.shape
+Out[14]:
+(98, 1, 1)
+In [15]:
+model = Sequential()
+model.add(LSTM(5, input_shape = (1, look_back)))
+model.add(Dense(1))
+model.compile(loss = 'mean_squared_error', optimizer = 'adam')
+In [16]:
+model.summary()
+Model: "sequential"
+_________________________________________________________________
+Layer (type) Output Shape Param # 
+=================================================================
+lstm (LSTM) (None, 5) 140 
+_________________________________________________________________
+ Predicting Airline Passengers Using RNN-LSTM
+Dept of CSE, GPREC, KNL. Page 38
+dense (Dense) (None, 1) 6 
+=================================================================
+Total params: 146
+Trainable params: 146
+Non-trainable params: 0
+_________________________________________________________________
+In [17]:
+model.fit(X_train, y_train, epochs=50, batch_size=1)
+Epoch 1/50
+98/98 [==============================] - 7s 4ms/step - loss: 0.0602
+Epoch 2/50
+98/98 [==============================] - 1s 5ms/step - loss: 0.0289
+Epoch 3/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0224
+Epoch 4/50
+98/98 [==============================] - 0s 2ms/step - loss: 0.0202
+Epoch 5/50
+98/98 [==============================] - 0s 2ms/step - loss: 0.0187
+Epoch 6/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0173
+Epoch 7/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0159
+Epoch 8/50
+98/98 [==============================] - 0s 2ms/step - loss: 0.0147
+Epoch 9/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0134
+Epoch 10/50
+98/98 [==============================] - 0s 2ms/step - loss: 0.0120
+Epoch 11/50
+98/98 [==============================] - 0s 2ms/step - loss: 0.0108
+Epoch 12/50
+98/98 [==============================] - 0s 2ms/step - loss: 0.0098
+Epoch 13/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0087
+Epoch 14/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0077
+Epoch 15/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0067
+Epoch 16/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0060
+Epoch 17/50
+98/98 [==============================] - 0s 2ms/step - loss: 0.0051
+Epoch 18/50
+98/98 [==============================] - 0s 2ms/step - loss: 0.0045- ETA: 0s - loss: 0.0
+Epoch 19/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0040
+Epoch 20/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0035
+Epoch 21/50
+98/98 [==============================] - 0s 2ms/step - loss: 0.0031
+Epoch 22/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0028
+Epoch 23/50
+98/98 [==============================] - 0s 2ms/step - loss: 0.0027
+Epoch 24/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0025
+Epoch 25/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0023
+Epoch 26/50
+98/98 [==============================] - 0s 4ms/step - loss: 0.0023A: 0s - loss: 
+Epoch 27/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0023
+Epoch 28/50
+ Predicting Airline Passengers Using RNN-LSTM
+Dept of CSE, GPREC, KNL. Page 41
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 29/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 30/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 31/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 32/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 33/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0021
+Epoch 34/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 35/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0021
+Epoch 36/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 37/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0021
+Epoch 38/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0021
+Epoch 39/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 40/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 41/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0021
+Epoch 42/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 43/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 44/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0021
+Epoch 45/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0021
+Epoch 46/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0022
+Epoch 47/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0021
+Epoch 48/50
+98/98 [==============================] - 0s 2ms/step - loss: 0.0021
+Epoch 49/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0021
+Epoch 50/50
+98/98 [==============================] - 0s 3ms/step - loss: 0.0021
+Out[17]:
+<tensorflow.python.keras.callbacks.History at 0x24245d612b0>
+In [18]:
+y_pred = model.predict(X_test)
+In [19]:
+scaler.scale_
+Out[19]:
+array([0.0019305])
+In [20]:
+y_pred = scaler.inverse_transform(y_pred)
+y_test = np.array(y_test)
+y_test = y_test.reshape(-1, 1)
+y_test = scaler.inverse_transform(y_test)
+In [21]:
+# plot baseline and predictions
+plt.figure(figsize=(14,5))
+plt.plot(y_test, label = 'Real number of passengers')
+plt.plot(y_pred, label = 'Predicted number of passengers')
+plt.ylabel('# passengers')
+plt.legend()
+plt.show()
